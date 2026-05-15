@@ -19,6 +19,13 @@ UNAVAILABLE_PHRASES = [
     "form is currently not available",
 ]
 
+NO_SLOTS_PHRASES = [
+    "a meghirdetett időpontjaink gyorsan beteltek",
+    "időpontjaink elfogytak",
+    "foglalási lehetőségek elfogytak",
+    "hamarosan újabb látogatási időpontokat",
+]
+
 JOTFORM_RE = re.compile(
     r"https?://(?:www\.)?(?:form|eu)\.jotform\.com/(\d+)[^\s\"'<>]*",
     re.IGNORECASE,
@@ -89,6 +96,12 @@ def main() -> int:
         phrase.lower() in html.lower() for phrase in UNAVAILABLE_PHRASES
     )
 
+    no_slots = any(
+        phrase.lower() in html.lower() for phrase in NO_SLOTS_PHRASES
+    )
+
+    bookable = not unavailable and not no_slots
+
     content_hash = hashlib.sha256(html.encode("utf-8")).hexdigest()
 
     if form_id:
@@ -104,6 +117,8 @@ def main() -> int:
         "form_id": form_id,
         "monitor_key": monitor_key,
         "unavailable": unavailable,
+        "no_slots": no_slots,
+        "bookable": bookable,
         "content_hash": content_hash,
     }
 
@@ -113,7 +128,10 @@ def main() -> int:
 
     first_run = previous_state is None
     previous_key = previous_state.get("monitor_key") if previous_state else None
-    changed = (not first_run) and (previous_key != monitor_key)
+    was_bookable = previous_state.get("bookable", False) if previous_state else False
+    changed = (not first_run) and (
+        (previous_key != monitor_key) or (bookable and not was_bookable)
+    )
 
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(
@@ -129,6 +147,7 @@ def main() -> int:
     set_github_output("jotform_url", jotform_url or "")
     set_github_output("form_id", form_id or "")
     set_github_output("unavailable", str(unavailable).lower())
+    set_github_output("bookable", str(bookable).lower())
 
     print(json.dumps(current_state, indent=2, ensure_ascii=False))
 
@@ -143,4 +162,20 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--test-ntfy":
+        import subprocess
+
+        topic = os.environ.get("NTFY_TOPIC")
+        if not topic:
+            print("Set NTFY_TOPIC environment variable first.")
+            sys.exit(1)
+        subprocess.run([
+            "curl", "-s",
+            "-H", "Title: Karmelita test",
+            "-H", "Tags: white_check_mark",
+            "-d", "Test notification - ntfy is working!",
+            f"https://ntfy.sh/{topic}",
+        ], check=True)
+        print(f"Test notification sent to topic: {topic}")
+        sys.exit(0)
     sys.exit(main())

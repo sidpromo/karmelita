@@ -1,0 +1,117 @@
+name: Check Karmelita form
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: karmelita-form-monitor
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Check form redirect
+        id: check
+        run: uv run python check_form.py
+
+      - name: Commit updated state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .state/karmelita-form.json
+
+          if git diff --cached --quiet; then
+            echo "No state change to commit."
+          else
+            git commit -m "Update Karmelita form monitor state"
+            git push
+          fi
+
+      - name: Create issue if form changed
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PREVIOUS_KEY: ${{ steps.check.outputs.previous_key }}
+          MONITOR_KEY: ${{ steps.check.outputs.monitor_key }}
+          FINAL_URL: ${{ steps.check.outputs.final_url }}
+          JOTFORM_URL: ${{ steps.check.outputs.jotform_url }}
+          FORM_ID: ${{ steps.check.outputs.form_id }}
+          UNAVAILABLE: ${{ steps.check.outputs.unavailable }}
+        run: |
+          cat > issue_body.md <<EOF
+          A possible new Karmelita booking form was detected.
+
+          Previous key: \`${PREVIOUS_KEY}\`
+          Current key: \`${MONITOR_KEY}\`
+
+          Final URL:
+          ${FINAL_URL}
+
+          Jotform URL:
+          ${JOTFORM_URL}
+
+          Form ID:
+          ${FORM_ID}
+
+          Form unavailable text detected:
+          ${UNAVAILABLE}
+
+          Next step: open the final URL manually and check whether appointment slots are selectable.
+          EOF
+
+          python - <<'PY'
+          import json
+          import pathlib
+          import os
+
+          body = pathlib.Path("issue_body.md").read_text(encoding="utf-8")
+
+          payload = {
+              "title": f"Karmelita form changed: {os.environ.get('FORM_ID') or os.environ.get('MONITOR_KEY')}",
+              "body": body,
+          }
+
+          pathlib.Path("issue_payload.json").write_text(
+              json.dumps(payload, ensure_ascii=False),
+              encoding="utf-8",
+          )
+          PY
+
+          curl --fail \
+            --request POST \
+            --url "https://api.github.com/repos/${REPO}/issues" \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header "Accept: application/vnd.github+json" \
+            --header "Content-Type: application/json" \
+            --data @issue_payload.json
+
+      - name: Push notification via ntfy
+        if: steps.check.outputs.changed == 'true'
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          curl -s \
+            -H "Title: Karmelita form changed" \
+            -H "Priority: high" \
+            -H "Tags: calendar,warning" \
+            -d "New form detected: ${{ steps.check.outputs.monitor_key }}. Check: ${{ steps.check.outputs.final_url }}" \
+            "https://ntfy.sh/${NTFY_TOPIC}"

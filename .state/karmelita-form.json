@@ -1,12 +1,12 @@
 {
-  "checked_at_utc": "2026-05-18T14:57:33.191391+00:00",
+  "checked_at_utc": "2026-05-18T17:29:29.835177+00:00",
   "entry_url": "https://szabadkarmelita.hu/",
-  "final_url": "https://form.jotform.com/261341956633359/",
-  "jotform_url": "https://form.jotform.com/261341956633359/",
-  "form_id": "261341956633359",
-  "monitor_key": "jotform:261341956633359",
-  "unavailable": true,
-  "no_slots": false,
+  "final_url": "https://form.jotform.com/261341156619052/",
+  "jotform_url": "https://form.jotform.com/261341156619052/",
+  "form_id": "261341156619052",
+  "monitor_key": "jotform:261341156619052",
+  "unavailable": false,
+  "no_slots": true,
   "bookable": false,
-  "content_hash": "e0c527c05ec3d8ba4803971d9ef56b30137caf1645b172268e583150245d1102"
+  "content_hash": "97d681a435dce26f21ec1f526d868fbf1901b068f2845ad6ccaff0f62ac5d66c"
 }

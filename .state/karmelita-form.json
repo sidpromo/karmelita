@@ -1,12 +1,12 @@
 {
-  "checked_at_utc": "2026-05-18T21:04:34.426747+00:00",
+  "checked_at_utc": "2026-05-18T22:52:29.217940+00:00",
   "entry_url": "https://szabadkarmelita.hu/",
-  "final_url": "https://form.jotform.com/261341156619052/",
-  "jotform_url": "https://form.jotform.com/261341156619052/",
-  "form_id": "261341156619052",
-  "monitor_key": "jotform:261341156619052",
+  "final_url": "https://szabadkarmelita.jegy.hu/dates/tickets/",
+  "jotform_url": null,
+  "form_id": null,
+  "monitor_key": "final-url:https://szabadkarmelita.jegy.hu/dates/tickets/",
   "unavailable": false,
-  "no_slots": true,
-  "bookable": false,
-  "content_hash": "97d681a435dce26f21ec1f526d868fbf1901b068f2845ad6ccaff0f62ac5d66c"
+  "no_slots": false,
+  "bookable": true,
+  "content_hash": "21894ec9b1a58c94831b273ea2a4fdec8dbf837f1f00d0d3effdc62e17370f59"
 }

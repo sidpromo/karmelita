@@ -1,12 +1,12 @@
 {
-  "checked_at_utc": "2026-05-21T10:34:38.862902+00:00",
+  "checked_at_utc": "2026-05-21T14:00:05.819329+00:00",
   "entry_url": "https://szabadkarmelita.hu/",
-  "final_url": "https://interticket.queue-it.net/afterevent.aspx?c=interticket&e=szabadkarmelita&t=https%3A%2F%2Fszabadkarmelita.jegy.hu%2Fqueued%2F&cid=hu-HU",
+  "final_url": "https://szabadkarmelita.jegy.hu/dates/tickets/2026-05-23/",
   "jotform_url": null,
   "form_id": null,
-  "monitor_key": "final-url:https://interticket.queue-it.net/afterevent.aspx?c=interticket&e=szabadkarmelita&t=https%3A%2F%2Fszabadkarmelita.jegy.hu%2Fqueued%2F&cid=hu-HU",
+  "monitor_key": "final-url:https://szabadkarmelita.jegy.hu/dates/tickets/2026-05-23/",
   "unavailable": false,
   "no_slots": false,
   "bookable": true,
-  "content_hash": "d4ecc354ff082c6ffdd429104f2d7632577c52217c99db0733153acb5bcced87"
+  "content_hash": "a0d6de62481153a003b78b3cedb71626f428389a99a8173ff92dee862ba6bf29"
 }
